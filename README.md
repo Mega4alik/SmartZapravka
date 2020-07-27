@@ -21,7 +21,8 @@
 
 3) Refill Date and Stations Prediction (предсказывание след даты и станции заправки)
 
-3.1) Usage
+3.1) Usage.
+
 Для вызова данной функции нужно передать информацию о предыдущих 3 заправках. 
 action=refill_predict
 arr=[
