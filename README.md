@@ -4,12 +4,13 @@
 1) Installation
 - Install python3 (tested on 3.5.2)
 - Install pip3
-- Install requirement as pip3 install -r requirement.txt
+- Install requirements as pip3 install -r requirements.txt
 1.1) Start application as python3 app.py. The app will at localhost:5000
 
 
 2) User Category Detection
 2.1) Usage
+
 action=uc_predict, 
 particles = [<product article>]
  
