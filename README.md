@@ -10,6 +10,7 @@
 
 
 2) User Category Detection (выявление категорий пользователя)
+
 2.1) Usage
 Для вызова данной функции нужно передать action=uc_predict, и артиклы товаров текущего чека (particles = [<product article>]).
 Рабочий пример вызова - http://zapravka.ailabs.kz:5000/?action=uc_predict&particles=[11125]
@@ -17,6 +18,7 @@
  
  
 3) Refill Date and Stations Prediction (предсказывание след даты и станции заправки)
+
 3.1) Usage
 Для вызова данной функции нужно передать информацию о предыдущих 3 заправках. 
 action=refill_predict
