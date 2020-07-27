@@ -12,7 +12,8 @@
 
 2) User Category Detection (выявление категорий пользователя)
 
-2.1) Usage
+2.1) Usage.
+
 Для вызова данной функции нужно передать action=uc_predict, и артиклы товаров текущего чека (particles = [<product article>]).
 Рабочий пример вызова - http://zapravka.ailabs.kz:5000/?action=uc_predict&particles=[11125]
 Ответом будем массив [<user_category_id>]. Таблицу категорий пользователей смотрите тут - https://drive.google.com/drive/folders/1kABvpya0xbKDUd2XHhg_s7NpHa5RkY0a?usp=sharing
