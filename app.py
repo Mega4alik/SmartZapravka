@@ -12,7 +12,15 @@ import flask
 from flask import Flask
 from flask import make_response
 from flask import request
+from flask import jsonify
 
+from sklearn.externals import joblib
+from sklearn.metrics import accuracy_score
+from sklearn.utils import shuffle    
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+
+PRODUCT_CATEGORIES_N = 49
+USER_CATEGORIES_N = 23
 
 def connect():
   return pymysql.connect(host='localhost',user='root',password='220693',db='zapravka',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
@@ -91,10 +99,7 @@ def refill_prepare():
 
 def refill_train():
 	DIVIDER = 150
-	from sklearn.externals import joblib
-	from sklearn.metrics import accuracy_score
-	from sklearn.utils import shuffle    
-	from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+
 
 	with open('refill_X.json') as f: X = json.load(f) #1823
 	with open('refill_Y_date_diff.json') as f: Yd = json.load(f)  
@@ -157,10 +162,7 @@ def import_checks(fileid):
 	
 
 
-def prepare_dataset():
-	X = []
-	Y = []
-	infos = []
+def get_products_map():
 	conn = connect()        
 	cursor = conn.cursor()        
 	products_map = {}
@@ -168,8 +170,16 @@ def prepare_dataset():
 	products = cursor.fetchall()                
 	for p in products:
 		products_map[p["particle"]] = p["pcategory"]
+	return products_map
 
-	cursor = conn.cursor()                    
+
+def prepare_dataset():
+	conn = connect()        
+	cursor = conn.cursor()  	
+	X = []
+	Y = []
+	infos = []              
+	products_map = get_products_map()   
 	cursor.execute('SELECT * FROM checks WHERE user_categories IS NOT NULL ORDER BY id')
 	checks = cursor.fetchall()
 	for q in checks:
@@ -191,10 +201,7 @@ def prepare_dataset():
 
 def train():
 	DIVIDER = 150
-	from sklearn.externals import joblib
-	from sklearn.metrics import accuracy_score
-	from sklearn.utils import shuffle    
-	from sklearn.ensemble import RandomForestClassifier
+
 	#from skmultilearn.problem_transform import BinaryRelevance
 	#from sklearn.naive_bayes import GaussianNB
 	#from sklearn import svm
@@ -207,8 +214,8 @@ def train():
 
 	Xin, Yin, infos = shuffle(Xin, Yin, infos)
 
-	input_len = 49 +1 #max(Xin)[0] + 1
-	classes_n = 23 +1 #max(Yin)[0] + 1
+	input_len = PRODUCT_CATEGORIES_N +1 #max(Xin)[0] + 1
+	classes_n = USER_CATEGORIES_N +1 #max(Yin)[0] + 1
 	print(input_len, classes_n, len(Xin))
 	
 	X = []
@@ -265,7 +272,7 @@ def train():
 		#clf = svm.LinearSVC()
 		#clf = LogisticRegression(random_state=0)
 		clf.fit(X[DIVIDER:],Y[DIVIDER:])
-		#joblib.dump(clf, 'model.save')    
+		joblib.dump(clf, 'model.save')    
 		predictions = clf.predict(X[:DIVIDER])
 		#print(Y[:DIVIDER], predictions)                            
 		for i in range(len(predictions)):
@@ -279,7 +286,17 @@ def train():
 		print(accuracy_score(Y[:DIVIDER], predictions))
 
 
-
+def predict(particles): #[2,4,5]
+	products_map = get_products_map() #particle -> pcategory
+	clf = joblib.load('model.save') 	
+	input_len = PRODUCT_CATEGORIES_N + 1
+	x = [0] * input_len
+	for particle in particles: x[products_map[particle]] = 1
+	pre = clf.predict([x])[0]
+	user_categories = []
+	for i in range(len(pre)):
+		if pre[i]==1: user_categories.append(i)
+	return user_categories
 
 
 
@@ -291,8 +308,11 @@ app = Flask(__name__)
 def home():
 	action = request.args.get('action')
 
-	if action=="prepare_dataset":
-		return "prepare_dataset_finished"
+	if action=="uc_predict":
+		particles = json.loads(request.args.get('particles'))
+		print("uc_predict", particles)
+		return jsonify(predict(particles))
+
 		
 	elif action=="w2l_decode": 
 		url= request.args.get('url')
@@ -304,16 +324,17 @@ def home():
 		res = file_get_contents("/home/ubuntu/shokhan/w2l_kazru/archdir/output.txt")
 		print(res)
 		return str(res)
-
 	return "no action"
+
 	
 if __name__ == "__main__":
-	#app.run(host='0.0.0.0',port='5000')
+	app.run(host='0.0.0.0',port='5000')
 	#recommendations system
 	#import_checks(2)
 	#prepare_dataset() #1
 	#train() #2
+	#print(predict([2025, 33101, 33103])) #8,9
 
 	#fuel
 	#refill_prepare() #1
-	refill_train() #2
+	#refill_train() #2
