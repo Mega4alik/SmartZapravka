@@ -9,6 +9,7 @@
 1.1) Start application as python3 app.py. The app will at localhost:5000
 
 
+
 2) User Category Detection (выявление категорий пользователя)
 
 2.1) Usage
@@ -17,6 +18,7 @@
 Ответом будем массив [<user_category_id>]. Таблицу категорий пользователей смотрите тут - https://drive.google.com/drive/folders/1kABvpya0xbKDUd2XHhg_s7NpHa5RkY0a?usp=sharing
  
  
+
 3) Refill Date and Stations Prediction (предсказывание след даты и станции заправки)
 
 3.1) Usage
