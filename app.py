@@ -29,7 +29,7 @@ PRODUCT_CATEGORIES_N = 49
 USER_CATEGORIES_N = 23
 
 def connect():
-  return pymysql.connect(host='localhost',user='root',password='220693',db='zapravka',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
+  return pymysql.connect(host='localhost',user='root',password='',db='zapravka',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 
 def file_get_contents(filename):
   return open(filename).read()
@@ -330,7 +330,8 @@ def predict(particles): #[2,4,5]
 	clf = joblib.load('model.save') 	
 	input_len = PRODUCT_CATEGORIES_N + 1
 	x = [0] * input_len
-	for particle in particles: x[products_map[str(particle)]] = 1
+	for particle in particles: 
+		if (str(particle) in products_map): x[products_map[str(particle)]] = 1
 	pre = clf.predict([x])[0]
 	user_categories = []
 	for i in range(len(pre)):
